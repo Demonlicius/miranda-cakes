@@ -22,7 +22,7 @@
     <div class="collapse navbar-collapse" id="navMain">
       <ul class="navbar-nav ms-auto align-items-center gap-1">
         <li class="nav-item"><a href="/index.php" class="nav-link">Inicio</a></li>
-        <li class="nav-item"><a href="/uploads/catalogo" class="nav-link">Catálogo</a></li>
+        <li class="nav-item"><a href="../uploads/catalogo" class="nav-link">Catálogo</a></li>
         <li class="nav-item"><a href="/cotizador.php" class="nav-link">Cotizar</a></li>
         <?php if (isLoggedIn()): ?>
           <li class="nav-item"><a href="/mis-pedidos.php" class="nav-link">Mis Pedidos</a></li>
