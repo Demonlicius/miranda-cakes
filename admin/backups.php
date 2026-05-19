@@ -8,10 +8,17 @@ if ($_SESSION['rol'] !== 'superadmin') {
   die('Acceso no autorizado.');
 }
 
-$uploadsDir = __DIR__ . '/../uploads/backups';
+// Usar la carpeta de backups fuera del webroot (ruta en servidor)
+$uploadsDir = '/home/ubuntu/backups';
 if (!is_dir($uploadsDir)) {
-  mkdir($uploadsDir, 0755, true);
+  $msg = 'Directorio de backups no encontrado en el servidor.';
 }
+
+// CSRF token para acciones sensibles
+if (empty($_SESSION['csrf_token'])) {
+  $_SESSION['csrf_token'] = bin2hex(random_bytes(16));
+}
+$csrf = $_SESSION['csrf_token'];
 
 // Manejar subida
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['backup'])) {
@@ -34,18 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['backup'])) {
   }
 }
 
-// Borrar fichero
-if (isset($_GET['delete'])) {
-  $del = basename($_GET['delete']);
-  if (preg_match('/^[a-zA-Z0-9._-]+$/', $del)) {
-    $path = realpath($uploadsDir . '/' . $del);
-    if ($path && str_starts_with($path, realpath($uploadsDir))) {
-      @unlink($path);
-      header('Location: /admin/backups.php');
-      exit;
-    }
-  }
-}
+// Nota: la eliminación se gestiona vía POST en admin/delete_backup.php
 
 $files = array_values(array_filter(scandir($uploadsDir), function($f) use($uploadsDir){
   return is_file($uploadsDir.'/'.$f) && $f !== '.' && $f !== '..';
@@ -95,8 +91,12 @@ $files = array_values(array_filter(scandir($uploadsDir), function($f) use($uploa
                   <td><?= number_format(filesize($uploadsDir.'/'.$f)/1024,2) ?> KB</td>
                   <td><?= date('d/m/Y H:i', filemtime($uploadsDir.'/'.$f)) ?></td>
                   <td>
-                    <a href="/uploads/backups/<?= rawurlencode($f) ?>" class="btn btn-sm btn-outline-secondary" target="_blank">Descargar</a>
-                    <a href="?delete=<?= rawurlencode($f) ?>" class="btn btn-sm btn-danger" onclick="return confirm('Borrar backup?')">Borrar</a>
+                    <a href="/admin/download_backup.php?file=<?= rawurlencode($f) ?>" class="btn btn-sm btn-outline-secondary">Descargar</a>
+                    <form method="post" action="/admin/delete_backup.php" style="display:inline-block;margin:0">
+                      <input type="hidden" name="file" value="<?= sanitize($f) ?>">
+                      <input type="hidden" name="token" value="<?= $csrf ?>">
+                      <button class="btn btn-sm btn-danger" onclick="return confirm('Borrar backup?')">Borrar</button>
+                    </form>
                   </td>
                 </tr>
               <?php endforeach; ?>
