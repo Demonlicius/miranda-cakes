@@ -55,7 +55,7 @@ $estados = [
     
     <?php if ($_SESSION['rol'] === 'superadmin'): ?>
     <div style="font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);padding:1rem 1.5rem 0.3rem">Super Admin</div>
-    <a href="/admin/backups" class="nav-link"><i class="fa fa-database"></i>Backups</a>
+    <a href="/admin/backups.php" class="nav-link"><i class="fa fa-database"></i>Backups</a>
     <a href="/admin/sistema.php" class="nav-link"><i class="fa fa-cog"></i>Sistema</a>
     <?php endif; ?>
     <div style="margin-top:auto;padding:1.5rem">
